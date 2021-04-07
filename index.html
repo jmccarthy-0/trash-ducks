@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Trash Ducks</title>
+        <style>
+            html, body {
+                margin:0;
+                height: 100%;
+            }
+
+            button {
+                position: fixed;
+                top:0;
+                left:0;
+            }
+
+            a {
+                position: fixed;
+                bottom:0;
+                left:0;
+            }
+
+            canvas {
+                width:100vw;
+                height:100vh;
+                display: block;
+                cursor: crosshair;
+            }
+
+            #loader {
+                position: fixed;
+                top:0;
+                left:0;
+                height:100vh;
+                width: 100vw;
+                background: #fff;
+                display: grid;
+                place-content:center;
+                z-index:2;
+            }
+        </style>
+    </head>
+    <body>
+        <button id="audioBtn">Audio</button>
+        <a href="##">View Project on GitHub</a>
+        <div id="loader">
+            Loading...
+        </div>
+        <canvas id="canvas"></canvas>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+        <script type="module" src="script.js"></script>
+
+        <!-- <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
+        <script type="text/javascript" src="inc/js/duck_development.js"></script> -->
+    </body>
+</html>
