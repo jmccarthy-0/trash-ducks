@@ -1,0 +1,22 @@
+{
+  "name": "trash_ducks",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0"
+  },
+  "dependencies": {
+    "@types/cannon": "^0.1.8",
+    "@types/three": "^0.149.0",
+    "cannon-es": "^0.20.0",
+    "lil-gui": "^0.18.0",
+    "three": "^0.150.1"
+  }
+}
