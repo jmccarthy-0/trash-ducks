@@ -277,14 +277,25 @@ const main = () => {
     world.step(1/60, deltaTime, 10);
     
     if (gltfCollection) {
-      gltfCollection.children[0].rotation.y = - elapsedTime * .3;
-      gltfCollection.children[0].position.y = Math.sin(elapsedTime * 4) * .005;
+      //gltfCollection.children[0].rotation.y = - elapsedTime * .3;
+      //gltfCollection.children[0].position.y = Math.sin(elapsedTime * 4) * .005;
 
-      duckBody.position.x = Math.sin(elapsedTime) * .5;
-      duckBody.position.z = Math.cos(elapsedTime) * .5;
+      duckBody.position.x = -Math.sin(elapsedTime * .3) * .5;
+      duckBody.position.y = Math.sin(elapsedTime * 4) * .005;
+      duckBody.position.z = Math.cos(elapsedTime * .3) * .5;
       duck.position.copy(duckBody.position);
 
-      console.log('Mesh', duck.position, 'Body',duckBody.position);
+     
+      //console.log(duckBody.velocity);
+     
+      //duckBody.quaternion.setFromAxisAngle();
+      
+      duckBody.quaternion.setFromAxisAngle(
+        new CANNON.Vec3(0, 1, 0), 
+        Math.atan2(duckBody.position.x, duckBody.position.z)
+      );
+
+      duck.quaternion.copy(duckBody.quaternion);
     }
   
     
