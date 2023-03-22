@@ -269,14 +269,14 @@ const main = () => {
 
     prevElapsedTime = elapsedTime;
 
-    cannery.cans.forEach(({mesh, body}) => {
+    cannery.cans.forEach(({mesh, body}: {mesh: THREE.Mesh, body: CANNON.Body}) => {
       mesh.position.copy(body.position);
       mesh.quaternion.copy(body.quaternion);
     });
 
-    world.step(1/60, deltaTime, 10);
     
-    if (gltfCollection) {
+    
+    if (duck && duckBody) {
       //gltfCollection.children[0].rotation.y = - elapsedTime * .3;
       //gltfCollection.children[0].position.y = Math.sin(elapsedTime * 4) * .005;
 
@@ -298,7 +298,7 @@ const main = () => {
       duck.quaternion.copy(duckBody.quaternion);
     }
   
-    
+    world.step(1/60, deltaTime, 10);
     renderer.render(scene, camera);
   
   
