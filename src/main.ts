@@ -173,6 +173,8 @@ const main = () => {
         material: physicsMaterials.can
       });
 
+      body.sleepSpeedLimit = 1.0;
+
       world.addBody(body);
 
       
