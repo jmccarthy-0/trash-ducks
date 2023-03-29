@@ -14,8 +14,8 @@ const main = () => {
     width: window.innerWidth,
     height: window.innerHeight,
     envColor: 0xCCCCCC, // white
-    fogNear: .5,
-    fogFar: 2,
+    fogNear: -1,  //.5
+    fogFar: 4  //3
   }
   
   //Scene Setup 
@@ -38,7 +38,31 @@ const main = () => {
   manager.onProgress = function () {
       console.log( 'Loading' );
   };
-  
+
+
+  // Textures
+  const textureLoader = new THREE.TextureLoader(manager);
+
+  const plantColorTexture = textureLoader.load('/textures/plants/reeds_00_texture.png');
+  const plantAlphaTexture = textureLoader.load('/textures/plants/reeds_00_alpha.png');
+
+  // plantColorTexture.repeat =  new THREE.Vector2(5,1);
+  // plantAlphaTexture.repeat =  new THREE.Vector2(5,1);
+
+  // plantColorTexture.wrapS = THREE.RepeatWrapping;
+  // plantAlphaTexture.wrapS =  THREE.RepeatWrapping;
+
+  // plantColorTexture.offset = new THREE.Vector2(0,0);
+  // plantAlphaTexture.offset = new THREE.Vector2(0,0);
+
+  const setUpPlantTexture = (texture) => {
+    texture.repeat =  new THREE.Vector2(5,1);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.offset = new THREE.Vector2(0,0);
+  };
+
+  setUpPlantTexture(plantColorTexture);
+  setUpPlantTexture(plantAlphaTexture);
   
   // Physics
   const world = new CANNON.World();
@@ -93,6 +117,33 @@ const main = () => {
   
   
   // Meshes  
+
+  // Plant
+  const plant = new THREE.Mesh(
+    new THREE.PlaneGeometry(10,2,1,1),
+    new THREE.MeshBasicMaterial({
+      map: plantColorTexture,
+      alphaMap: plantAlphaTexture,
+      transparent: true,
+      fog: true,
+      alphaTest: 0,
+      //side: THREE.DoubleSide
+    })
+  );
+
+
+
+  plant.position.set(0, 0.43, -1.3);
+
+  gui.add(plant.position, 'x').min(-5).max(5).step(.01).name('Plant X');
+  gui.add(plant.position, 'y').min(-1).max(1).step(.01).name('Plant Y');
+  gui.add(plant.position, 'z').min(-3).max(1).step(.01).name('Plant Z');
+  
+  scene.add(plant);
+  
+
+
+  //Water 
   const complexPlane = new THREE.PlaneGeometry(10, 10, 200, 200);
   const basicPlane = new THREE.PlaneGeometry(10, 10, 1, 1);
   
@@ -103,9 +154,9 @@ const main = () => {
   
   const water = new Water( basicPlane, {
           color: 0x89845A,
-          scale: 4,
+          scale: 8, //4
           flowDirection: new THREE.Vector2(flow.x,flow.y),
-          textureWidth: 1024,
+          textureWidth: 1024, // 1024
           textureHeight: 1024
         } );
   water.name = "Water";
@@ -138,7 +189,9 @@ const main = () => {
   );
 
   world.addBody(groundBody);
-  
+
+
+
 
   // Cans
   const cannery = {
@@ -202,7 +255,7 @@ const main = () => {
 
   //GLTF Scene
   const gltfLoader = new GLTFLoader(manager);
-  const duckSceneUrl = "/inc/assets/ducktrash01.gltf";
+  const duckSceneUrl = "/inc/assets/ducktrash02.gltf";
   let gltfCollection: THREE.Group | null;
   
   gltfCollection = null;
@@ -216,8 +269,7 @@ const main = () => {
     const sceneMeshes = gltfCollection.children;
 
     if (sceneMeshes.length > 0) {
-      duck = sceneMeshes.find(mesh => mesh.name === "BezierCircle")?.children
-                        .find(mesh => mesh.name === "duck001");
+      duck = sceneMeshes.find(mesh => mesh.name === "duck001");
 
       duck.geometry.computeBoundingBox();
 
@@ -251,14 +303,20 @@ const main = () => {
   
   // Lights
   const color = 0xFFFFFF;
-  const intensity = 1;
+  const intensity = .8;
   const directionalLight = new THREE.DirectionalLight(color, intensity);
   directionalLight.position.set(-1, 2, 1);
   scene.add(directionalLight);
+
+
+  gui.add(directionalLight.position, 'x').min(-10).max(10).step(.1).name('Directional Light X');
+  gui.add(directionalLight.position, 'y').min(-10).max(10).step(.1).name('Directional Light Y');
+  gui.add(directionalLight.position, 'z').min(-10).max(10).step(.1).name('Directional Light Z');
+  gui.add(directionalLight, 'intensity').min(0).max(10).step(.1).name('Directional Light Intensity');
   
   const skyColor = 0xB1E1FF;
   const groundColor = 0xB97A20;
-  const hemisLight = new THREE.HemisphereLight(skyColor, groundColor, 1);
+  const hemisLight = new THREE.HemisphereLight(skyColor, groundColor, .5);
   scene.add(hemisLight);
   
   // Animation
@@ -283,7 +341,7 @@ const main = () => {
       //gltfCollection.children[0].position.y = Math.sin(elapsedTime * 4) * .005;
 
       duckBody.position.x = -Math.sin(elapsedTime * .3) * .5;
-      duckBody.position.y = Math.sin(elapsedTime * 4) * .005;
+      duckBody.position.y = (Math.sin(elapsedTime * 4) * .005) - .02;
       duckBody.position.z = Math.cos(elapsedTime * .3) * .5;
       duck.position.copy(duckBody.position);
 
@@ -368,6 +426,15 @@ const main = () => {
             cannery.createNewCan(groundIntersection);
         }
     }
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    updateMousePosition(e);
+
+    // camera.position.x = (mouse.x / 25);
+    // camera.position.y = (mouse.y / 25) + .4;
+
+
   });
 
   function updateMousePosition(e) {
