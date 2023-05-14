@@ -19,7 +19,8 @@ const main = () => {
     height: window.innerHeight,
     envColor: 0xCCCCCC, // white
     fogNear: .5,  //.5
-    fogFar: 3  //3
+    fogFar: 3,  //3
+    debug: true,
   }
   
   //Scene Setup 
@@ -209,7 +210,7 @@ const main = () => {
       r: 0,
     },
 
-    createNewCan({point}) {
+    createNewCan({point}:{point: THREE.Vector3}) {
       let can = gltfCollection.children.find(child => child.name == "can");
 
       // Physics Body
@@ -451,26 +452,28 @@ const main = () => {
 
 
   //Debug
-  // Fog
-  gui.add(sceneParams, 'fogNear').min(-5).max(5).step(.1).name('Fog Near').onChange(() => {
-    scene.fog = new THREE.Fog(sceneParams.envColor, sceneParams.fogNear, sceneParams.fogFar);
-  });
-
-  gui.add(sceneParams, 'fogFar').min(-5).max(5).step(.1).name('Fog Far').onChange(() => {
-    scene.fog = new THREE.Fog(sceneParams.envColor, sceneParams.fogNear, sceneParams.fogFar);
-  });
-
-  // Directional Light
-  gui.add(directionalLight.position, 'x').min(-10).max(10).step(.1).name('Directional Light X');
-  gui.add(directionalLight.position, 'y').min(-10).max(10).step(.1).name('Directional Light Y');
-  gui.add(directionalLight.position, 'z').min(-10).max(10).step(.1).name('Directional Light Z');
-  gui.add(directionalLight, 'intensity').min(0).max(10).step(.1).name('Directional Light Intensity');
-
-
-  // Background image 
-  gui.add(plant.position, 'x').min(-5).max(5).step(.01).name('Plant X');
-  gui.add(plant.position, 'y').min(-1).max(1).step(.01).name('Plant Y');
-  gui.add(plant.position, 'z').min(-3).max(1).step(.01).name('Plant Z');
+  if (sceneParams.debug) {
+    // Fog
+    gui.add(sceneParams, 'fogNear').min(-5).max(5).step(.1).name('Fog Near').onChange(() => {
+      scene.fog = new THREE.Fog(sceneParams.envColor, sceneParams.fogNear, sceneParams.fogFar);
+    });
+  
+    gui.add(sceneParams, 'fogFar').min(-5).max(5).step(.1).name('Fog Far').onChange(() => {
+      scene.fog = new THREE.Fog(sceneParams.envColor, sceneParams.fogNear, sceneParams.fogFar);
+    });
+  
+    // Directional Light
+    gui.add(directionalLight.position, 'x').min(-10).max(10).step(.1).name('Directional Light X');
+    gui.add(directionalLight.position, 'y').min(-10).max(10).step(.1).name('Directional Light Y');
+    gui.add(directionalLight.position, 'z').min(-10).max(10).step(.1).name('Directional Light Z');
+    gui.add(directionalLight, 'intensity').min(0).max(10).step(.1).name('Directional Light Intensity');
+  
+  
+    // Background image 
+    gui.add(plant.position, 'x').min(-5).max(5).step(.01).name('Plant X');
+    gui.add(plant.position, 'y').min(-1).max(1).step(.01).name('Plant Y');
+    gui.add(plant.position, 'z').min(-3).max(1).step(.01).name('Plant Z');
+  }
 }
 
 main();
