@@ -2,6 +2,10 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Water } from "three/examples/jsm/objects/Water2.js";
 
+import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer'
+
+import CannonDebugger from 'cannon-es-debugger'
+
 import * as dat from 'lil-gui';
 
 import * as CANNON from 'cannon-es';
@@ -14,8 +18,8 @@ const main = () => {
     width: window.innerWidth,
     height: window.innerHeight,
     envColor: 0xCCCCCC, // white
-    fogNear: -1,  //.5
-    fogFar: 4  //3
+    fogNear: .5,  //.5
+    fogFar: 3  //3
   }
   
   //Scene Setup 
@@ -71,6 +75,8 @@ const main = () => {
   world.allowSleep = true;
   (world.solver as CANNON.GSSolver).iterations = 10;
 
+  const cannonDebugger = new CannonDebugger(scene, world);
+
   const physicsMaterials = {
     duck: new CANNON.Material('duck'),
     can: new CANNON.Material('can'),
@@ -114,6 +120,8 @@ const main = () => {
   });
   renderer.setSize(sceneParams.width, sceneParams.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
   
   
   // Meshes  
@@ -135,9 +143,7 @@ const main = () => {
 
   plant.position.set(0, 0.43, -1.3);
 
-  gui.add(plant.position, 'x').min(-5).max(5).step(.01).name('Plant X');
-  gui.add(plant.position, 'y').min(-1).max(1).step(.01).name('Plant Y');
-  gui.add(plant.position, 'z').min(-3).max(1).step(.01).name('Plant Z');
+  
   
   scene.add(plant);
   
@@ -255,7 +261,7 @@ const main = () => {
 
   //GLTF Scene
   const gltfLoader = new GLTFLoader(manager);
-  const duckSceneUrl = "/inc/assets/ducktrash02.gltf";
+  const duckSceneUrl = "/inc/assets/ducktrash03.gltf";
   let gltfCollection: THREE.Group | null;
   
   gltfCollection = null;
@@ -270,7 +276,6 @@ const main = () => {
 
     if (sceneMeshes.length > 0) {
       duck = sceneMeshes.find(mesh => mesh.name === "duck001");
-
       duck.geometry.computeBoundingBox();
 
       const duckShape = new CANNON.Box(new CANNON.Vec3(
@@ -307,12 +312,6 @@ const main = () => {
   const directionalLight = new THREE.DirectionalLight(color, intensity);
   directionalLight.position.set(-1, 2, 1);
   scene.add(directionalLight);
-
-
-  gui.add(directionalLight.position, 'x').min(-10).max(10).step(.1).name('Directional Light X');
-  gui.add(directionalLight.position, 'y').min(-10).max(10).step(.1).name('Directional Light Y');
-  gui.add(directionalLight.position, 'z').min(-10).max(10).step(.1).name('Directional Light Z');
-  gui.add(directionalLight, 'intensity').min(0).max(10).step(.1).name('Directional Light Intensity');
   
   const skyColor = 0xB1E1FF;
   const groundColor = 0xB97A20;
@@ -333,6 +332,8 @@ const main = () => {
       mesh.position.copy(body.position);
       mesh.quaternion.copy(body.quaternion);
     });
+
+
 
     
     
@@ -357,8 +358,10 @@ const main = () => {
 
       duck.quaternion.copy(duckBody.quaternion);
     }
-  
+    
+    
     world.step(1/60, deltaTime, 10);
+    cannonDebugger.update();
     renderer.render(scene, camera);
   
   
@@ -394,11 +397,13 @@ const main = () => {
     let intersectObjects = raycaster.intersectObjects(scene.children);
     let plane;
     let canOverlap = false;
+    let validTarget = false;
 
     intersectObjects.forEach((item) => {
         switch (item.object.name) {
             case "Water":
                 plane = item;
+                validTarget = true
                 break;
             case "can":
                 canOverlap = true;
@@ -408,7 +413,7 @@ const main = () => {
         }
     });
 
-    if (!canOverlap) {
+    if (validTarget) {
       return plane;
     }
 
@@ -443,6 +448,29 @@ const main = () => {
 
     return mouse.clone();
 }
+
+
+  //Debug
+  // Fog
+  gui.add(sceneParams, 'fogNear').min(-5).max(5).step(.1).name('Fog Near').onChange(() => {
+    scene.fog = new THREE.Fog(sceneParams.envColor, sceneParams.fogNear, sceneParams.fogFar);
+  });
+
+  gui.add(sceneParams, 'fogFar').min(-5).max(5).step(.1).name('Fog Far').onChange(() => {
+    scene.fog = new THREE.Fog(sceneParams.envColor, sceneParams.fogNear, sceneParams.fogFar);
+  });
+
+  // Directional Light
+  gui.add(directionalLight.position, 'x').min(-10).max(10).step(.1).name('Directional Light X');
+  gui.add(directionalLight.position, 'y').min(-10).max(10).step(.1).name('Directional Light Y');
+  gui.add(directionalLight.position, 'z').min(-10).max(10).step(.1).name('Directional Light Z');
+  gui.add(directionalLight, 'intensity').min(0).max(10).step(.1).name('Directional Light Intensity');
+
+
+  // Background image 
+  gui.add(plant.position, 'x').min(-5).max(5).step(.01).name('Plant X');
+  gui.add(plant.position, 'y').min(-1).max(1).step(.01).name('Plant Y');
+  gui.add(plant.position, 'z').min(-3).max(1).step(.01).name('Plant Z');
 }
 
 main();
