@@ -16,6 +16,7 @@
     "@types/cannon": "^0.1.8",
     "@types/three": "^0.149.0",
     "cannon-es": "^0.20.0",
+    "cannon-es-debugger": "^1.0.0",
     "lil-gui": "^0.18.0",
     "three": "^0.150.1"
   }
